@@ -1,0 +1,6 @@
+__pycache__/
+protos/
+generate-source-files.sh
+build-image.sh
+Dockerfile
+test_client.py

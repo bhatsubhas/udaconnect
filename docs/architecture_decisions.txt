@@ -1,0 +1,6 @@
+Since location related endpoints have least dependency on other services, it has been decided to strangle location related APIs as an independent service. 
+Location service will be a gRPC service, which will expose methods to create and access location data. 
+Udaconnect API will contact gRPC Location Service to get the exposed locationd information. 
+Main objective of this project is to allow large volume of location data to be ingested into the system. So we need asynchronous message passing techinque like Apache Kafka, since Kafka does not enforce any schema on messages, we will use Location gRPC enforces fixed schema for the messages.
+Create Location method of Location Service will post messages to "locations" Kafka topic, which is consume by Location Ingestion Service for load the data into the database asynchronously. 
+Location Ingestion Service can be scaled horizontly to handle large volume of location data ingestion. 

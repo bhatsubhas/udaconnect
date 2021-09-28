@@ -1,0 +1,262 @@
+{
+  "swagger": "2.0",
+  "basePath": "/",
+  "paths": {
+    "/api/persons": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Person"
+              }
+            }
+          }
+        },
+        "operationId": "get_persons_resource",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "UdaConnect"
+        ]
+      },
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Person"
+            }
+          }
+        },
+        "operationId": "post_persons_resource",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Person"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "UdaConnect"
+        ]
+      }
+    },
+    "/api/persons/{person_id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "description": "Unique ID for a given Person",
+          "name": "person_id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Person"
+              }
+            }
+          }
+        },
+        "operationId": "Get location when unique ID is passed",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "UdaConnect"
+        ]
+      }
+    },
+    "/api/persons/{person_id}/connection": {
+      "parameters": [
+        {
+          "in": "query",
+          "description": "Proximity to a given user in meters",
+          "name": "distance",
+          "type": "string"
+        },
+        {
+          "required": true,
+          "in": "query",
+          "description": "Upper bound of date range in YYYY-MM-DD format",
+          "name": "end_date",
+          "type": "string"
+        },
+        {
+          "required": true,
+          "in": "query",
+          "description": "Lower bound of date range in YYYY-MM-DD format",
+          "name": "start_date",
+          "type": "string"
+        },
+        {
+          "in": "path",
+          "description": "Unique ID for a given Person",
+          "name": "person_id",
+          "required": true,
+          "type": "integer"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Connection"
+              }
+            }
+          }
+        },
+        "operationId": "get_connection_data_resource",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "UdaConnect"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "UdaConnect API",
+    "version": "0.1.0"
+  },
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "UdaConnect",
+      "description": "Connections via geolocation."
+    }
+  ],
+  "definitions": {
+    "Person": {
+      "required": [
+        "company_name",
+        "first_name",
+        "last_name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unique identifier of the person",
+          "readOnly": true,
+          "example": 101
+        },
+        "first_name": {
+          "type": "string",
+          "description": "First name of the person",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "description": "Last name of the person",
+          "example": "Doe"
+        },
+        "company_name": {
+          "type": "string",
+          "description": "Company to which person belongs to",
+          "example": "The ABCD Inc."
+        }
+      },
+      "type": "object"
+    },
+    "Connection": {
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/Location"
+        },
+        "person": {
+          "$ref": "#/definitions/Person"
+        }
+      },
+      "type": "object"
+    },
+    "Location": {
+      "required": [
+        "creation_time",
+        "latitude",
+        "longitude"
+      ],
+      "properties": {
+        "person_id": {
+          "type": "integer",
+          "description": "Unique identifier of the person whose location information is being returned",
+          "readOnly": true,
+          "example": 20
+        },
+        "id": {
+          "type": "integer",
+          "description": "Unique identifier of the location",
+          "readOnly": true,
+          "example": 101
+        },
+        "longitude": {
+          "type": "string",
+          "description": "Longitude of the location"
+        },
+        "latitude": {
+          "type": "string",
+          "description": "Lattitude of the location"
+        },
+        "creation_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp at which location detail was captured"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "responses": {
+    "ParseError": {
+      "description": "When a mask can't be parsed"
+    },
+    "MaskError": {
+      "description": "When any error occurs on mask"
+    }
+  }
+}

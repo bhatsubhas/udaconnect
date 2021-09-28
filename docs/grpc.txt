@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+// Message to be passed to create a new location entry for a person. 
+message CreateLocationRequest {
+    int32 person_id = 1;
+    string longitude = 2;
+    string latitude = 3;
+    string creation_time = 4;
+}
+
+// Since location is created asynchronously, response will only be message.
+message CreateLocationResponse {
+    string message = 1;
+}
+
+// For getting a location information, pass the primary key of the location table.
+message GetLocationRequest {
+    int32 location_id = 1;
+}
+
+// Requested location information is returned with below details.
+message Location {
+    int32 location_id = 1;
+    int32 person_id = 2;
+    string longitude = 3;
+    string latitude = 4;
+    string creation_time = 5;
+}
+
+// Below details must be passed to the Exposed location of a person
+// During a particular time period. 
+message ListExposedLocationsRequest {
+    int32 person_id = 1;
+    string start_date = 2;
+    string end_date = 3;
+    int32 meters = 4;
+}
+
+// Below detail of exposed locations are returned for each exposure. 
+message ExposedLocation {
+    int32 location_id = 1;
+    int32 exposed_person_id = 2;
+    string exposed_long = 3;
+    string exposed_lat = 4;
+    string exposed_time = 5;
+}
+
+// List of exposed locations for a given person
+message ListExposedLocationsResponse {
+    repeated ExposedLocation locations = 1;
+}
+
+service LocationService {
+    // Method to create a Location entry, it returns message accepting the request
+    // Location will be create asynchronously by location ingestion service.
+    rpc CreateLocation(CreateLocationRequest) returns (CreateLocationResponse);
+    // Method to get a particular location information if the location id is known. 
+    rpc GetLocation(GetLocationRequest) returns (Location);
+    // Method to get exposed location for a person within passed daterange. Udaconnect API service
+    // will invoke this method to get the exposed locations. 
+    rpc ListExposedLocations(ListExposedLocationsRequest) returns (ListExposedLocationsResponse);
+}
+
+// How to make sample requests?
+// Below is the sample python code to make requests to grpc server. 
+//Create Location Stub
+import grpc
+import datetime
+import location_pb2
+import location_pb2_grpc
+
+channel = grpc.insecure_channel("localhost:5001")
+stub = location_pb2_grpc.LocationServiceStub(channel)
+
+// Request to create a location
+create_request = location_pb2.CreateLocationRequest(
+    person_id=1,
+    longitude="123.0",
+    latitude="33.0",
+    creation_time=datetime.datetime.now().isoformat()
+)
+create_response = stub.CreateLocation(create_request)
+print(f"Created location entry in DB - {create_response}")
+
+// Request to get exposed locations
+list_request = location_pb2.ListExposedLocationsRequest(
+    person_id=1,
+    start_date=datetime.datetime.strptime("2020-01-01", "%Y-%m-%d").isoformat(),
+    end_date=datetime.datetime.strptime("2020-12-31", "%Y-%m-%d").isoformat(),
+    meters=5
+)
+list_response = stub.ListExposedLocations(list_request)
+print(f"Received {len(list_response.locations)} records in response")
+for location in list_response.locations:
+    print(location)
+    print("----------------------------------")
+
+// Request to get a location when location id is known.
+get_request = location_pb2.GetLocationRequest(location_id=36)
+get_response = stub.GetLocation(get_request)
+print(f"Got location from DB - {get_response}")
+
+

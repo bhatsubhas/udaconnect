@@ -1,0 +1,13 @@
+From the project directory run below command:
+`kubectl apply -f deployment/`
+
+For seeding the database with dummy data do following:
+Run command `kubectl get pods` and copy the name of the pod on which postgres service is running
+ 
+Using pod name identified using the above command run `sh scripts/run_db_command.sh <POD_NAME>`
+
+Below are the api end point to be used for accessing the application:
+* `http://localhost:30001/` - For OpenAPI Documentation
+* `http://localhost:30001/api/` - Base path for accessig all the API Endpoints
+* `http://localhost:30000/` - Frontend Udaconnect Application
+
